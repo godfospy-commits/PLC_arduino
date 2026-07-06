@@ -1,0 +1,81 @@
+#include <LiquidCrystal_I2C.h>
+
+#define MOTOR_PIN 3
+#define HEATER_PIN 4
+
+byte pinTmpSensor = A0;
+byte pinSoilSensor = A1;
+byte pinLightSensor = A2;
+
+int SoilP, LightP, TmpC;
+
+LiquidCrystal_I2C lcd(0x27,16,2);
+LiquidCrystal_I2C lcd2(0x26,16,2);
+
+void InttLCD() {
+  lcd.init(); lcd.backlight();
+  lcd2.init(); lcd2.backlight();
+}
+
+void DisplayLCD() {
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("TMP:" + String(TmpC) + "C");
+  lcd.setCursor(8,0);
+  lcd.print("SOIL:" + String(SoilP) + "%");
+  lcd.setCursor(0,1);
+  lcd.print("LIGHT:" + String(LightP) + "%");
+}
+
+void ReadSensor() {
+  TmpC = map(analogRead(pinTmpSensor), 20, 358, -40, 125);
+  SoilP = map(analogRead(pinSoilSensor), 0, 876, 0, 100);
+  LightP = map(analogRead(pinLightSensor), 0, 471, 0, 100);
+}
+
+void ControlMotor(int temp) {
+  if(temp > 30) {
+    int speedLevel = map(temp, 31, 125, 1, 5);
+    speedLevel = constrain(speedLevel, 1, 5);
+    digitalWrite(MOTOR_PIN, HIGH);
+    lcd2.clear();
+    lcd2.setCursor(0,0);
+    lcd2.print("Fan ON");
+    lcd2.setCursor(0,1);
+    lcd2.print("Speed Level: " + String(speedLevel));
+  } else {
+    digitalWrite(MOTOR_PIN, LOW);
+  }
+}
+
+void ControlHeater(int temp) {
+  if(temp < 10) {
+    int heatLevel = map(temp, 9, -40, 1, 5);
+    heatLevel = constrain(heatLevel, 1, 5);
+    digitalWrite(HEATER_PIN, HIGH);
+    lcd2.clear();
+    lcd2.setCursor(0,0);
+    lcd2.print("Heater ON");
+    lcd2.setCursor(0,1);
+    lcd2.print("Heat Level: " + String(heatLevel));
+  } else {
+    digitalWrite(HEATER_PIN, LOW);
+  }
+}
+
+void setup() {
+  pinMode(MOTOR_PIN, OUTPUT);
+  pinMode(HEATER_PIN, OUTPUT);
+  Serial.begin(9600);
+  InttLCD();
+  lcd2.setCursor(0,0);
+  lcd2.print("System Ready!");
+}
+
+void loop() {
+  ReadSensor();
+  DisplayLCD();
+  ControlMotor(TmpC);
+  ControlHeater(TmpC);
+  delay(500);
+}
