@@ -1,0 +1,81 @@
+// Global Variable
+/*
+byte PinLED1 = 10;
+byte PinLED2 = 11;
+byte PinLED3 = 12;
+byte PinLED4 = 13;
+*/ 
+// Declare Array Variable
+/*
+byte PinLED[4];
+PinLED[0] = 10; 
+PinLED[1] = 11; 
+PinLED[2] = 12; 
+PinLED[3] = 13; 
+*/ 
+byte PinLED[] = {9,10,11,12,13};
+  
+int BlinkSpeed = 200;
+
+void setup()
+{
+  // Config DO 
+  // for(start;Condition Stop;Step)
+  for(byte i=0;i<=4;i+=1){ 
+    pinMode(PinLED[i],OUTPUT);
+  } 
+  
+  /*
+  pinMode(PinLED[0],OUTPUT);
+  pinMode(PinLED[1],OUTPUT);
+  pinMode(PinLED[2],OUTPUT);
+  pinMode(PinLED[3],OUTPUT);
+  */ 
+  
+  // Blink
+  // for(start;Condition Stop;Step)
+  
+  for(byte n=1;n<=3;n+=1){
+    for(byte i=0;i<=4;i+=1){
+      digitalWrite(PinLED[i],HIGH);
+      delay(BlinkSpeed);
+      digitalWrite(PinLED[i],LOW);
+      delay(BlinkSpeed);
+    }
+  }
+  
+  /*
+  digitalWrite(PinLED1,HIGH);
+  delay(BlinkSpeed);
+  digitalWrite(PinLED1,LOW);
+  delay(BlinkSpeed);
+  
+  digitalWrite(PinLED2,HIGH);
+  delay(BlinkSpeed);
+  digitalWrite(PinLED2,LOW);
+  delay(BlinkSpeed);
+  
+  digitalWrite(PinLED3,HIGH);
+  delay(BlinkSpeed);
+  digitalWrite(PinLED3,LOW);
+  delay(BlinkSpeed);
+
+  digitalWrite(PinLED4,HIGH);
+  delay(BlinkSpeed);
+  digitalWrite(PinLED4,LOW);
+  delay(BlinkSpeed); 
+  */ 
+}
+
+void loop()
+{ 
+
+}
+
+
+
+
+
+
+
+
