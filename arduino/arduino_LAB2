@@ -1,0 +1,135 @@
+//Sensor Pins
+const byte pinGasSensor   = A5;
+const byte pinLightSensor = A2;
+const byte pinTmpSensor   = A1;
+const byte pinSoilSensor  = A0;
+
+//Output Pins
+const byte relay1 = 2;
+const byte relay2 = 3;
+const byte fan1   = 5;
+const byte fan2   = 6;
+const byte bulb1  = 9;
+const byte bulb2  = 10;
+const byte buzzer = 8;
+
+//Emergency Flag
+bool emergencyShutdown = false;
+
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(relay1, OUTPUT);
+  pinMode(relay2, OUTPUT);
+  pinMode(fan1, OUTPUT);
+  pinMode(fan2, OUTPUT);
+  pinMode(bulb1, OUTPUT);
+  pinMode(bulb2, OUTPUT);
+  pinMode(buzzer, OUTPUT);
+}
+
+void loop() {
+  //หากอยู่ในสถานะฉุกเฉิน
+  if (emergencyShutdown) {
+    digitalWrite(buzzer, HIGH);
+    allOff();
+    Serial.println("!!! SYSTEM SHUTDOWN DUE TO GAS LEVEL 4 or ABOVE !!!");
+    delay(1000);
+    return;
+  }
+
+  //อ่านค่าจาก Sensor
+  int rawGas   = analogRead(pinGasSensor);
+  int rawLight = analogRead(pinLightSensor);
+  int rawTemp  = analogRead(pinTmpSensor);
+  int rawSoil  = analogRead(pinSoilSensor);
+
+  float tempCelsius = rawTemp * (5.0 / 1023.0) * 100.0;
+
+  int gasLevel       = getGasLevel(rawGas);
+  int lightLevel     = constrain(map(rawLight, 0, 1023, 1, 4), 1, 4);   // 1 = มืด, 4 = สว่าง
+  int soilLevel      = constrain(map(rawSoil, 1023, 0, 1, 4), 1, 4);
+  int tempLevelHot   = constrain(map((int)tempCelsius, 30, 60, 1, 4), 1, 4);
+  int tempLevelCold  = constrain(map((int)tempCelsius, 0, 20, 4, 1), 1, 4);
+
+  //ตรวจสอบระดับก๊าซ (≥4 = ปิดระบบ)
+  if (gasLevel >= 4) {
+    emergencyShutdown = true;
+    return;
+  }
+
+  digitalWrite(buzzer, LOW);  // หากต่ำกว่า Lv 4 ให้ปิด Buzzer
+
+  //แสง: ใช้ควบคุมการทำงานของ Relay/หลอดไฟ
+  bool skipPump = (lightLevel == 1);
+  bool skipBulb = (lightLevel == 4);
+
+  //ควบคุมปั๊มน้ำ
+  if (!skipPump) {
+    if (soilLevel == 1) {
+      digitalWrite(relay1, HIGH); digitalWrite(relay2, HIGH);
+    } else if (soilLevel == 2 || soilLevel == 3) {
+      digitalWrite(relay1, HIGH); digitalWrite(relay2, LOW);
+    } else {
+      digitalWrite(relay1, LOW); digitalWrite(relay2, LOW);
+    }
+  } else {
+    digitalWrite(relay1, LOW); digitalWrite(relay2, LOW);
+  }
+
+  //ควบคุมพัดลม
+  if (tempLevelHot == 4) {
+    analogWrite(fan1, 255); analogWrite(fan2, 255);
+  } else if (tempLevelHot == 3) {
+    analogWrite(fan1, 128); analogWrite(fan2, 128);
+  } else if (tempLevelHot == 2) {
+    analogWrite(fan1, 255); analogWrite(fan2, 0);
+  } else {
+    analogWrite(fan1, 128); analogWrite(fan2, 0);
+  }
+
+  //ควบคุมหลอดไฟให้ความร้อน
+  if (!skipBulb) {
+    if (tempLevelCold == 4) {
+      analogWrite(bulb1, 255); analogWrite(bulb2, 255);
+    } else if (tempLevelCold == 3) {
+      analogWrite(bulb1, 255); analogWrite(bulb2, 0);
+    } else if (tempLevelCold == 2) {
+      analogWrite(bulb1, 128); analogWrite(bulb2, 128);
+    } else {
+      analogWrite(bulb1, 128); analogWrite(bulb2, 0);
+    }
+  } else {
+    analogWrite(bulb1, 0); analogWrite(bulb2, 0);
+  }
+
+  //แสดงข้อมูล Sensor
+  Serial.print("Gas: "); Serial.print(rawGas); Serial.print(" (Lv "); Serial.print(gasLevel); Serial.print("), ");
+  Serial.print("Light: "); Serial.print(rawLight); Serial.print(" (Lv "); Serial.print(lightLevel); Serial.print("), ");
+  Serial.print("Temp: "); Serial.print(rawTemp);
+  Serial.print(" ("); Serial.print(tempCelsius); Serial.print(" °C)");
+  Serial.print(" [HotLv "); Serial.print(tempLevelHot);
+  Serial.print(", ColdLv "); Serial.print(tempLevelCold); Serial.print("], ");
+  Serial.print("Soil: "); Serial.print(rawSoil); Serial.print(" (Lv "); Serial.print(soilLevel); Serial.println(")");
+
+  delay(500);
+}
+
+//ฟังก์ชันแปลงค่าก๊าซเป็นระดับ
+int getGasLevel(int val) {
+  if (val > 750) return 5;
+  else if (val > 600) return 4;
+  else if (val > 450) return 3;
+  else if (val > 300) return 2;
+  else return 1;
+}
+
+//ปิดทุกอุปกรณ์ 
+void allOff() {
+  digitalWrite(relay1, LOW);
+  digitalWrite(relay2, LOW);
+  analogWrite(fan1, 0);
+  analogWrite(fan2, 0);
+  analogWrite(bulb1, 0);
+  analogWrite(bulb2, 0);
+}
