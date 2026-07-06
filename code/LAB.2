@@ -1,1 +1,88 @@
+ FOR i = 1 TO real
+            IF SIG(1001) THEN
+                CALL home()
+                CALL pick01()
+                CALL place01()
 
+            END
+            IF SIG(1002) THEN
+                CALL home()
+                CALL pick02()
+                CALL place02()
+
+            END
+        END
+        TYPE "real =", i
+.END
+//////////////////////////////////////////////////////////
+.PROGRAM home()
+        READY
+        BREAK
+        JMOVE 0, -90, 180, 0, 90, 0
+
+        MOVES home
+        BREAK
+
+
+.END
+//////////////////////////////////////////////////////////
+.PROGRAM pick01()
+        MOVES home
+        BREAK
+        MOVES pick01
+        BREAK
+        MOVES prepick01
+        BREAK
+        SIGNAL 1
+        MOVES prepick01
+        BREAK
+        MOVES prepick01
+        BREAK
+
+.END
+//////////////////////////////////////////////////////////
+.PROGRAM place01()
+        MOVES home
+        BREAK
+        MOVES place01
+        BREAK
+        MOVES preplace01
+        BREAK
+        SIGNAL -1
+        MOVES preplace01
+        BREAK
+        MOVES home
+        BREAK
+
+.END
+//////////////////////////////////////////////////////////
+.PROGRAM pick02()
+        MOVES home
+        BREAK
+        MOVES pick02
+        BREAK
+        MOVES prepick02
+        BREAK
+        SIGNAL 1
+        MOVES prepick02
+        BREAK
+        MOVES home
+        BREAK
+
+.END
+//////////////////////////////////////////////////////////
+.PROGRAM place02()
+        MOVES home
+        BREAK
+        MOVES place02
+        BREAK
+        MOVES preplace02
+        BREAK
+        SIGNAL -1
+        MOVES preplace02
+        BREAK
+        MOVES home
+        BREAK
+
+
+.END
