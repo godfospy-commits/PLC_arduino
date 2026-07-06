@@ -1,1 +1,128 @@
+SPEED 90 ALWAYS
 
+        PROMPT "LOOP = ?", cnt
+        WHILE TRUE DO
+            FOR i = 1 TO cnt
+                PROMPT "sensor number = i", number
+                CASE TRUE OF
+                  VALUE number == 30:
+                    TYPE "The number", number, "== 30"
+                    CALL home()
+                    CALL pick01()
+                    CALL place01()
+
+                  VALUE number == 20:
+                    TYPE "The number", number, "== 20"
+                    CALL home()
+                    CALL pick02()
+                    CALL place02()
+
+                  VALUE number == 10:
+                    TYPE "The number", number, "== 10"
+                    CALL home()
+                    CALL pick03()
+                    CALL place03()
+                END
+                count = count+1
+                TYPE "COUNT = ", count
+                TYPE "COUNT = ", i
+            END
+        END
+
+.END
+/////////////////////////////////////////////////////////////////////
+.PROGRAM home()
+        READY
+        BREAK
+        JMOVE 0, -90, 180, 0, 90, 0
+
+        MOVES home
+        BREAK
+
+.END
+/////////////////////////////////////////////////////////////////////
+.PROGRAM pick01()
+        MOVES home
+        BREAK
+        MOVES prepick01
+        BREAK
+        MOVES pick01
+        BREAK
+        SIGNAL 1
+        MOVES prepick01
+        BREAK
+        MOVES home
+        BREAK
+
+.END
+/////////////////////////////////////////////////////////////////////
+.PROGRAM place01()
+        MOVES home
+        BREAK
+        MOVES preplace01
+        BREAK
+        MOVES place01
+        BREAK
+        SIGNAL -1
+        MOVES preplace01
+        BREAK
+        MOVES home
+        BREAK
+.END
+/////////////////////////////////////////////////////////////////////
+.PROGRAM pick02()
+        MOVES home
+        BREAK
+        MOVES prepick02
+        BREAK
+        MOVES pick02
+        BREAK
+        SIGNAL 2
+        MOVES prepick02
+        BREAK
+        MOVES home
+        BREAK
+.END
+/////////////////////////////////////////////////////////////////////
+.PROGRAM place02()
+        MOVES home
+        BREAK
+        MOVES preplace02
+        BREAK
+        MOVES place02
+        BREAK
+        SIGNAL -2
+        MOVES preplace02
+        BREAK
+        MOVES home
+        BREAK
+.END
+/////////////////////////////////////////////////////////////////////
+.PROGRAM pick03()
+        MOVES home
+        BREAK
+        MOVES prepick03
+        BREAK
+        MOVES pick03
+        BREAK
+        SIGNAL 3
+        MOVES prepick03
+        BREAK
+        MOVES home
+        BREAK
+.END
+/////////////////////////////////////////////////////////////////////
+.PROGRAM place03()
+        MOVES home
+        BREAK
+        MOVES preplace03
+        BREAK
+        MOVES place03
+        BREAK
+        SIGNAL -3
+        MOVES preplace03
+        BREAK
+        MOVES home
+        BREAK
+.END
+/////////////////////////////////////////////////////////////////////
